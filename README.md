@@ -1,8 +1,18 @@
 
+---
 
-# Facial Emotion Detection and Frequency Prediction Model
+# Real-Time Emotion-Based Frequency Recommendation System
+This project is a real-time system that detects emotions from facial expressions using a live camera feed and predicts a personalized frequency recommendation based on various factors, including the detected emotion, gender, time, location, weather, activity, feedback, age, mood intensity, and sleep quality. The recommended frequency is then played on an online tone generator for practical use.
 
-This project involves the development and training of two machine learning models. The first model detects emotions from facial expressions, while the second model predicts a frequency based on various factors such as emotion, gender, time, location, weather, activity, feedback, age, mood intensity, and sleep quality.
+## Overview
+This project combines two machine learning models:
+1. **Emotion Recognition Model**: Detects emotions in real-time using the camera feed.
+2. **Frequency Recommendation Model**: Recommends a frequency based on detected emotion and additional user inputs.
+
+The integration of these models is implemented in the `emotion_frequency.py` script, which allows users to input details, capture real-time emotion, and receive a frequency recommendation played on the [Online Tone Generator](https://onlinetonegenerator.com).
+
+---
+
 ## Datasets
 
 1. **CNN Model Dataset**:
@@ -13,107 +23,113 @@ This project involves the development and training of two machine learning model
    - The `Emotion_frequency_dataset.csv` file is used for the second model, which is for emotion-based frequency prediction.
    - This dataset includes features like emotion, gender, age, weather, and feedback  used for predicting the frequency for various combinations of inputs.
 
+## Files in the Project
+### 1. **Models and Related Files**
+- **Emotion Recognition Model**
+  - `Face_Emotion.keras`: Pre-trained Keras model for emotion detection.
+  - `facialemotionmodel.json`: Model architecture in JSON format.
+  - `facialemotionmodel.weights.h5`: Model weights for emotion recognition.
 
-## Key Features:
-1. **Facial Emotion Detection**: The model classifies facial expressions into 7 distinct emotions: 'angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', and 'surprise'.
-2. **Frequency Prediction**: The model predicts a frequency (value) based on the detected emotion and other contextual inputs.
+- **Frequency Recommendation Model**
+  - `xgb_model.joblib`: Pre-trained XGBoost model for frequency prediction.
 
-## Project Setup:
+### 2. **Integration Script**
+- **`emotion_frequency.py`**: Combines the two models, captures user inputs, detects emotion via the camera, predicts the frequency using both inputs, and plays the tone on the online tone generator.
 
-### Prerequisites:
-1. **Libraries**: 
-   - `keras` for building the deep learning model
-   - `xgboost` for training the frequency prediction model
-   - `pandas`, `numpy` for data manipulation
-   - `matplotlib` for visualizing results
-   - `tqdm` for progress bars
-   - `sklearn` for preprocessing and splitting the dataset
+---
 
-2. **Environment**: Google Colab or local Python environment with necessary packages installed.
+## How the System Works
+### Step 1: **Create the Models**
+1. Train or acquire:
+   - A real-time **Emotion Recognition Model** capable of detecting one of the following emotions:
+     - `angry`, `disgust`, `fear`, `happy`, `neutral`, `sad`, `surprise`.
+   - A **Frequency Recommendation Model** trained with the following features:
+     - Mood Intensity
+     - Sleep Quality
+     - Feedback
+     - Age
+     - One-hot encoded variables for:
+       - Emotion (`angry`,`disgust`, `fear`, `happy`, `neutral`, `sad`, `surprise`)
+       - Gender (`Male`,`Female`)
+       - Time of Day (`Morning`, `Evening`, `Night`)
+       - Location (`Outdoors`, `Public Space`, `Work`)
+       - Weather (`Rainy`, `Snowy`, `Sunny`)
+       - Activity (`Relaxing`, `Socializing`, `Working`)
 
+2. Save the models and their weights in appropriate files:
+   - For the emotion recognition model: `Face_Emotion.keras`, `facialemotionmodel.json`, and `facialemotionmodel.weights.h5`.
+   - For the frequency recommendation model: `xgb_model.joblib`.
 
+---
 
-### Installation:
-Install the required packages using pip:
-```bash
-pip install keras xgboost pandas numpy matplotlib scikit-learn tqdm keras-preprocessing
-```
+### Step 2: **Combine Models in `emotion_frequency.py`**
+1. The script integrates both models and enables:
+   - Real-time emotion detection using the camera feed.
+   - Frequency recommendation based on the detected emotion and user inputs.
 
-### Steps to Run:
+2. Inputs required from the user include:
+   - **Gender**: Male or Female.
+   - **Time of Day**: Morning, Evening, or Night.
+   - **Location**: Outdoors, Public Space, or Work.
+   - **Weather**: Rainy, Snowy, or Sunny.
+   - **Activity**: Relaxing, Socializing, or Working.
+   - **Feedback**: A numeric rating (0–10).
+   - **Age**: User's age.
+   - **Mood Intensity**: A numeric scale (1–10).
+   - **Sleep Quality**: A numeric scale (1–10).
 
-1. **Prepare the Dataset**: 
-   - The training images are located in `images/train` and testing images in `images/test`.
-   - The dataset for frequency prediction is in `emotion_frequency_dataset.csv`.
+3. Once the inputs are gathered, the camera is activated to detect emotion in real-time.
 
-2. **Train the Emotion Detection Model**:
-   - This model uses Convolutional Neural Networks (CNNs) to detect facial emotions from grayscale images of faces.
-   - The model is trained using images, labels (7 emotions), and saved as `Face_Emotion.keras` and the architecture is saved as `facialemotionmodel.json`.
+4. Both inputs (user-provided and detected emotion) are combined into a feature vector and passed to the frequency recommendation model.
 
-3. **Train the Frequency Prediction Model**:
-   - The dataset is preprocessed with one-hot encoding for categorical columns.
-   - An XGBoost regressor model is used to predict the frequency based on input features.
-   - The trained frequency prediction model is saved in `emotion_frequency_model.pkl`.
+5. The predicted frequency is displayed and played on the [Online Tone Generator](https://onlinetonegenerator.com).
 
-4. **Model Evaluation**:
-   - The emotion detection model is evaluated based on classification accuracy.
-   - The frequency prediction model is evaluated using Mean Squared Error (MSE) and R² score.
+---
 
-### Usage:
-- **Facial Emotion Detection**: 
-   - You can use the model to predict the emotion from a given image using the `ef(image)` function.
-   
-   Example:
-   ```python
-   image_path = 'path_to_image.jpg'
-   pred = model.predict(ef(image_path))
-   print(f'Model Prediction: {pred_label}')
+## Running the Script
+### Prerequisites
+- Install required Python packages:
+  ```bash
+  pip install numpy opencv-python keras joblib xgboost
+  ```
+- Ensure the model files are in the same directory as `emotion_frequency.py`.
+
+### Steps to Run
+1. Open a terminal and navigate to the directory containing `emotion_frequency.py`.
+2. Run the script:
+   ```bash
+   python emotion_frequency.py
    ```
+3. Follow the prompts:
+   - Input gender, time of day, location, weather, activity, feedback, age, mood intensity, and sleep quality.
+   - The camera will activate for real-time emotion detection.
+4. After 8-10 seconds, the system will:
+   - Display the detected emotion and the recommended frequency.
+   - Automatically play the frequency on the [Online Tone Generator](https://onlinetonegenerator.com).
 
-- **Frequency Prediction**:
-   - The frequency prediction model uses various input features (emotion, mood intensity, etc.) and returns the predicted frequency.
+---
 
-   Example:
-   ```python
-   prediction = frequency_model.predict(input_features)
-   ```
+## Example Workflow
+1. **Input**:
+   - Gender: Male
+   - Time of Day: Morning
+   - Location: Work
+   - Weather: Sunny
+   - Activity: Working
+   - Feedback: 7
+   - Age: 25
+   - Mood Intensity: 8
+   - Sleep Quality: 6
 
-### Saving and Loading the Models:
-- **Emotion Detection Model**:
-   - The model is saved in `.keras` format and architecture in `.json` format.
-   - Weights are saved in `.h5` format.
-  
-   To load the model:
-   ```python
-   model = load_model('path_to_model/Face_Emotion.keras')
-   ```
+2. **Emotion Detection**:
+   - Camera detects the emotion as "happy".
 
-- **Frequency Prediction Model**:
-   - The trained XGBoost model is saved as `emotion_frequency_model.pkl`.
+3. **Frequency Recommendation**:
+   - System predicts a frequency of `364.0 Hz`.
 
-   To load the model:
-   ```python
-   import pickle
-   with open('emotion_frequency_model.pkl', 'rb') as f:
-       frequency_model = pickle.load(f)
-   ```
-
-### Evaluation:
-- The model performance for emotion detection is measured using accuracy.
-- The frequency prediction model's performance is evaluated using MSE and R² score.
-
-### Example Output:
-
-```python
-Original image: 'angry'
-Predicted emotion: 'angry'
-
-Frequency prediction: 125.0
-```
-
-### Visualizations:
-- Feature importance for the frequency prediction model can be visualized using bar charts.
-
-## License:
-This project is licensed under the MIT License.
+4. **Output**:
+   - Detected Emotion: `happy`
+   - Final Frequency Recommendation: `364.0 Hz`
+   - Frequency automatically opens on the online tone generator in the browser.
 
 ---
