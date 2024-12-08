@@ -2,48 +2,51 @@ import cv2
 import numpy as np
 from keras.models import load_model
 import joblib
-import random
 import time
-import random
-import webbrowser  # Add this at the top of your file
+import webbrowser
 
 
 # Load pre-trained emotion recognition model
 emotion_model = load_model('Face_Emotion.keras')
 
-# Load frequency recommendation model
+# Load frequency recommendation model (XGBoost)
 xgb_model = joblib.load('xgb_model.joblib')
+# Get the feature names from the XGBoost model
+feature_names = xgb_model.get_booster().feature_names
+
+# Print the feature names
+#print(f"Feature names expected by the model: {feature_names}")
 
 # Emotion labels
 emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprise']
 
-# Function to calculate frequency based on emotion and other factors
 
-
-# Function to calculate frequency based on emotion and other factors
+# Function to calculate frequency based on emotion and other factors using the XGBoost model
 def calculate_frequency(emotion, gender, time_of_day, location, weather, activity, feedback, age, mood_intensity, sleep_quality):
-    # Emotion-based frequency range (with decimal values)
-    frequency_range = {
-        'angry': (80.0, 150.0),
-        'disgust': (100.0, 200.0),
-        'fear': (120.0, 250.0),
-        'happy': (250.0, 400.0),
-        'neutral': (100.0, 200.0),
-        'sad': (80.0, 150.0),
-        'surprise': (300.0, 500.0)
-    }
+    # Create a feature vector using the emotion and other inputs
+    # Map emotion to a numeric value (one-hot encoding or direct mapping)
+    emotion_mapping = {label: idx for idx, label in enumerate(emotion_labels)}
+    emotion_feature = emotion_mapping.get(emotion, -1)  # Use -1 if emotion is not found (fallback)
 
-    # Get the frequency range for the detected emotion
-    min_freq, max_freq = frequency_range.get(emotion, (0, 0))
+    # Prepare the input features for the frequency prediction model
+    features = np.array([
+        mood_intensity, sleep_quality, feedback, age,
+        emotion == 'disgust', emotion == 'fear', emotion == 'happy', emotion == 'neutral', emotion == 'sad', emotion == 'surprise',  # One-hot encoding for emotion
+        gender == 'Male',  # One-hot encoding for gender
+        time_of_day == 'Evening', time_of_day == 'Morning', time_of_day == 'Night',  # One-hot encoding for time of day
+        location == 'Outdoors', location == 'Public Space', location == 'Work',  # One-hot encoding for location
+        weather == 'Rainy', weather == 'Snowy', weather == 'Sunny',  # One-hot encoding for weather
+        activity == 'Relaxing', activity == 'Socializing', activity == 'Working'  # One-hot encoding for activity
+    ])
 
-    # Simulate a realistic frequency value with decimal precision
-    frequency = round(random.uniform(min_freq, max_freq), 2)  # Generate with decimal precision
+    features = features.astype(float).reshape(1, -1)  # Reshape for XGBoost model
 
-    # Print the calculated frequency based on emotion
-    print(f"Emotion Detected: {emotion}")
-    print(f"Suggested Frequency: {frequency} Hz")
+    # Predict frequency using the XGBoost model
+    predicted_frequency = xgb_model.predict(features)
 
-    return frequency
+    # Return the predicted frequency
+    return predicted_frequency[0]
+
 
 # Prompt for user inputs (before opening camera)
 gender = input("Enter gender (Male/Female): ")
@@ -117,10 +120,10 @@ cv2.destroyAllWindows()
 
 # After emotion detection, calculate and display frequency
 frequency = calculate_frequency(predicted_emotion, gender, time_of_day, location, weather, activity, feedback, age, mood_intensity, sleep_quality)
-
+print(f"\nDetected Emotion: {predicted_emotion}")
 print(f"\nFinal Frequency Recommendation: {round(frequency, 2)} Hz")
+
 # After calculating the frequency
 print(f"Playing the frequency: {frequency} Hz")
 url = f"https://onlinetonegenerator.com/?freq={frequency}"
 webbrowser.open(url)
-
