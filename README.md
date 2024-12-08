@@ -3,6 +3,16 @@
 # Facial Emotion Detection and Frequency Prediction Model
 
 This project involves the development and training of two machine learning models. The first model detects emotions from facial expressions, while the second model predicts a frequency based on various factors such as emotion, gender, time, location, weather, activity, feedback, age, mood intensity, and sleep quality.
+## Datasets
+
+1. **CNN Model Dataset**:
+   - The dataset for the CNN model is stored in `archive.zip`.
+   - It contains two folders: `train` and `test` which can be used for training and testing the model.
+
+2. **Frequency Prediction Model Dataset**:
+   - The `Emotion_frequency_dataset.csv` file is used for the second model, which is for emotion-based frequency prediction.
+   - This dataset includes features like emotion, gender, age, weather, and feedback  used for predicting the frequency for various combinations of inputs.
+
 
 ## Key Features:
 1. **Facial Emotion Detection**: The model classifies facial expressions into 7 distinct emotions: 'angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', and 'surprise'.
